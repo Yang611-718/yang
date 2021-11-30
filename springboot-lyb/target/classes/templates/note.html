@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="../static/css/bootstrap.css" th:href="@{/css/bootstrap.css}" rel="stylesheet">
+    <link href="../static/css/mycss.css" th:href="@{/css/mycss.css}" rel="stylesheet">
+    <script src="../static/js/jquery-3.4.1.min.js" th:src="@{/js/jquery-3.4.1.min.js}"></script>
+    <script src="../static/js/bootstrap.bundle.min.js" th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <link rel="stylesheet" href="../static/plugin/font-awesome/css/font-awesome.min.css"
+          th:href="@{/plugin/font-awesome/css/font-awesome.min.css}">
+</head>
+
+
+<body>
+
+<div class="container-fluid m-0 p-0">
+    <div id="nest"></div>
+    <!--导航栏-->
+    <div class="container-lg-fluid shadow bg-dark mb-4" th:replace="_fragments::nav">
+        <div class="container ">
+            <nav class="navbar navbar-expand-lg   ">
+                <a class="navbar-brand font-weight-normal font-italic" href="index.html"
+                   style="font-size: 1.5em">留言板</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarBlog"
+                        aria-controls="navbarOJ" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarBlog">
+                    <ul class="navbar-nav mr-auto ">
+                        <li class="nav-item text-dark">
+                            <a class="nav-link   font-weight-normal " href="index.html"><i
+                                    class="fa fa-home mini  mr-1"></i>首页 <span
+                                    class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item text-dark">
+                            <a class="nav-link  font-weight-normal" href="note.html"><i
+                                    class="fa fa-envelope mini  mr-1"></i>留言</a>
+                        </li>
+                    </ul>
+
+                    <a type="button nav-item "
+                       class="nav-item btn float-right  font-weight-normal hover text-primary ml-3">登录</a>
+
+                </div>
+
+            </nav>
+        </div>
+
+    </div>
+    <div class="container1">
+        <div class="container-fluid">
+
+
+            <!-- posts list -->
+            <h3>帖子列表</h3>
+            <ul class="list-group">
+
+                <form th:action="@{/note}" method="get">
+                    <div class="row form-group">
+                        <input  type="text" class="form-control" name="email" >
+                    </div>
+                    <button th:type="submit" class="btn btn-primary">查询</button>
+                </form>
+
+
+                <li class="list-group-item" th:each="comment:${list}">
+                    <div class="media">
+                        <div class="media-heading">
+                            <h3><a th:href="@{/comment/(postId=${comment.id})}" th:text="${comment.theme}">title</a></h3>
+                            <h5 th:text="${comment.content}">title</h5>
+                        </div>
+                    </div>
+                </li>
+                <div class="container-lg">
+                    <nav aria-label="Page navigation" class="mt-3 ">
+                        <ul class="pagination">
+                            <li class="page-item"><span id="before" class="page-link  changepage" onclick="prepage(1)"
+                                                        th:attr="data-page=${page.current - 1 >1?page.current -1: 1}"
+                                                        style="color: #17a2b8;cursor:pointer">上一页</span></li>
+                            <li class="page-item"><a class="page-link changepage" href="javascript:void(0)"
+                                                     style="color: #17a2b8">当前在第<span th:text="${page.current}">1</span>页</a></li>
+                            <li class="page-item"><span id="after" class="page-link" onclick="prepage(2)"
+                                                        th:attr="data-page=${page.current + 1 > page.pages?page.pages: page.current + 1}"
+                                                        style="color: #17a2b8;cursor:pointer">下一页</span></li>
+                            <li class="page-item text-center  mt-2 ml-2"></li>
+                            <li class="page ml-2 mt-1 w-25 ">
+                                <span class="text-center " th:text="'共'+ ${page.getPages()}+ '页'">共20页</span>
+                                <span class="text-center ">跳转到</span>
+                                <input type="text" class="w-25   rounded" name="page" id="page">
+                                <span class="text-center ">页</span>
+                                <a class="btn btn-primary " href="javascript:void(0)" id="pagebtn" onclick="changepage(this)">确定</a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+
+            </ul>
+
+        </div>
+
+    </div>
+    <div class="container-lg mt-lg-5 ">
+        <div class="card border p-2 ">
+            <div class="card-header text-info  border-bottom border-info" style="background-color: white;">
+                留言
+            </div>
+
+<!--            <li class="nav-item text-dark">-->
+<!--                <a class="nav-link  font-weight-normal" href="browse" th:href="@{/browse}"><i-->
+<!--                        class="fa fa-envelope mini  mr-1"></i>浏览</a>-->
+<!--            </li>-->
+
+            <div class="form-group mx-sm-3 mb-2 mt-4">
+                <label for="title">主题</label>
+                <input type="text" class="form-control" id="title"  placeholder="留言主题">
+            </div>
+
+            <!--            留言发送输入框-->
+            <form action="/message/comment/postcomment" method="post">
+                <div class="card-body">
+                    <input type="hidden" name="id" th:value="${session.user !=null ?session.user.id:''}" id="id"/>
+                    输入框
+                    <div id="noteEdit">
+                        <textarea name="content" id="content" placeholder="说点什么。。。"></textarea>
+                    </div>
+
+                    <!--提交列表-->
+                    <div class="container-fluid m-0 mt-3 p-0 h-100">
+
+                        <div class="border rounded pr-0  pl-2 inline ">
+                            <i class="fa fa-user  mr-1" style="color: #ccc"></i>
+                            <input type="text" placeholder="姓名" class="pl-2 m-0 h-100 border-0 pr-0" name="username"
+                                   id="username"
+                                   th:value="${session.user!=null ?session.user.username:''}">
+                        </div>
+                        <div class="border rounded   pl-2 pr-0  inline">
+                            <i class="fa fa-envelope  mr-1" style="color: #ccc"></i>
+                            <input type="text" placeholder="邮箱" class="pl-2 h-100 border-0" name="email" id="email"
+                                   th:value="${session.user != null ?session.user.email:''}">
+                        </div>
+                        <div class=" mb-1 p-0  inline  btn  btn-info text-center">
+<!--                            <div class="container  text-center pt-1" id="sender">-->
+<!--                                <li class="fa fa-edit"></li>-->
+<!--                                -->
+<!--                                &lt;!&ndash;                        <input type="hidden" class="border-0 btn-info ">&ndash;&gt;-->
+<!--                            </div>-->
+                            <input class="container  text-center pt-1" id="sender" type="submit"style="background-color: #17a2b8;">发送</a>
+                        </div>
+                        <div class=" mb-1 p-0  inline small text-danger   text-center">
+                            <div class="container  text-center pt-1" id="errmsg">
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                <script>
+                    function clear() {
+
+                        $("#content").val('');
+                        $("#parentCommentId").val('-1');
+                        $('#replyCommentId').val('-1');
+                        $("#content").attr('placeholder', '说点什么。。');
+                    }
+
+                    // $(".reply").click(function () {
+                    //     alert('addasfasf')
+                    // })
+
+                    function checkEmail() {
+                        var email = $("#email").val();
+                        var regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+                        var flag = regEmail.test(email);
+                        if (flag) {
+                            $("#errmsg").text("");
+                        } else {
+
+                            $("#errmsg").text("email格式错误");
+                        }
+                        return flag;
+                    }
+
+
+                    $("#sender").click(function () {
+                        var content = $("#content").val();
+                        if (content == null || content.length <= 0) {
+                            $("#errmsg").text("留言内容不能为空");
+                            return;
+                        }
+                        var email = $("#email").val();
+                        if (!checkEmail()) {
+                            return;
+                        }
+                        var username = $("#username").val();
+                        if (username == null || username.length <= 0) {
+                            $("#errmsg").text("姓名不能为空");
+                            return;
+                        }
+
+
+                        var id = $("#id").val();
+
+
+                        // $("#commentslist").load(/*[[@{comment/postcomment}]]*/"comment/postcomment",
+                        //     {
+                        //         'id': id,
+                        //         'theme': theme,
+                        //         'content': content,
+                        //         'username': username,
+                        //         'email': email
+                        //     }, function () {
+                        //         clear();
+                        //     })
+
+                    })
+
+                    function prepage(type){
+                        var current = 1;
+                        if (type == 1){
+                            current = $("#before").attr("data-page")
+                        } else{
+                            current = $("#after").attr("data-page")
+
+                        }
+                        window.location = getRootPath()+"note?current="+current
+                    }
+                    function getRootPath() {
+                        var pathName = window.location.pathname.substring(1);
+                        var webName = pathName == '' ? '' : pathName.substring(0, pathName.indexOf('/'));
+                        return window.location.protocol + '//'   + window.location.host + '/' + webName + '/';
+                    }
+                </script>
+
+
+            </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
